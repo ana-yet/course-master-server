@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 
 const globalErrorHandler = require('./controllers/errorController');
+const AppError = require('./utils/AppError');
 
 const app = express();
 
