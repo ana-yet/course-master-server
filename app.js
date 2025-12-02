@@ -3,6 +3,7 @@ const cors = require('cors');
 
 const globalErrorHandler = require('./controllers/errorController');
 const AppError = require('./utils/AppError');
+const userRouter = require('./routes/userRoutes');
 
 const app = express();
 
@@ -11,6 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+app.use('/api/v1/users', userRouter);
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
