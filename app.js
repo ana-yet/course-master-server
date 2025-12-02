@@ -5,6 +5,7 @@ const globalErrorHandler = require('./controllers/errorController');
 const AppError = require('./utils/AppError');
 const userRouter = require('./routes/userRoutes');
 const courseRouter = require('./routes/courseRoutes');
+const enrollmentRouter = require('./routes/enrollmentRoutes');
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 // Routes
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/courses', courseRouter);
+app.use('/api/v1/enrollments', enrollmentRouter);
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
