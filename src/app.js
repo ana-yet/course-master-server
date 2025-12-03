@@ -21,9 +21,11 @@ app.use(morgan("dev")); // Log requests
 
 // Import Routes
 import authRouter from "./routes/auth.routes.js";
+import courseRouter from "./routes/course.routes.js";
 
 // Use Routes
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/courses", courseRouter);
 
 // Global Error Handler
 import { errorHandler } from "./middlewares/error.middleware.js";
