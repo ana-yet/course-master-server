@@ -19,9 +19,11 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 app.use(morgan("dev")); // Log requests
 
-// 2. Import Routes (We will create these next)
-// import userRouter from './routes/user.routes.js';
-// app.use("/api/v1/users", userRouter);
+// Import Routes
+import authRouter from "./routes/auth.routes.js";
+
+// Use Routes
+app.use("/api/v1/auth", authRouter);
 
 // Global Error Handler
 import { errorHandler } from "./middlewares/error.middleware.js";
