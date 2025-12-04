@@ -2,12 +2,19 @@ import { Router } from "express";
 import {
   getAdminStats,
   getAllSubmissions,
+  getAllAssignments,
+  reviewAssignment,
 } from "../controllers/admin.controller.js";
 import { verifyJWT, verifyAdmin } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.get("/stats", verifyJWT, verifyAdmin, getAdminStats);
-router.get("/submissions", verifyJWT, verifyAdmin, getAllSubmissions);
+// All routes require admin access
+router.use(verifyJWT, verifyAdmin);
+
+router.get("/stats", getAdminStats);
+router.get("/submissions", getAllSubmissions);
+router.get("/assignments", getAllAssignments);
+router.put("/assignments/:enrollmentId/:submissionId", reviewAssignment);
 
 export default router;
