@@ -5,12 +5,24 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { Course } from "../models/course.model.js";
 import { Enrollment } from "../models/enrollment.model.js";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// Lazy-initialize Stripe to avoid errors when env vars aren't loaded yet
+let stripe = null;
+
+const getStripe = () => {
+  if (!stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new ApiError(500, "Stripe is not configured. Please add STRIPE_SECRET_KEY to your .env file.");
+    }
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  }
+  return stripe;
+};
 
 // @desc    Create Stripe Checkout Session
 // @route   POST /api/v1/payments/create-checkout-session
 // @access  Private
 const createCheckoutSession = asyncHandler(async (req, res) => {
+  const stripeClient = getStripe();
   const { courseId } = req.body;
   const userId = req.user._id;
 
@@ -31,7 +43,7 @@ const createCheckoutSession = asyncHandler(async (req, res) => {
   }
 
   // 3. Create Stripe Checkout Session
-  const session = await stripe.checkout.sessions.create({
+  const session = await stripeClient.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "payment",
     customer_email: req.user.email,
@@ -53,8 +65,8 @@ const createCheckoutSession = asyncHandler(async (req, res) => {
       courseId: courseId.toString(),
       userId: userId.toString(),
     },
-    success_url: `${process.env.CLIENT_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.CLIENT_URL}/courses/${courseId}`,
+    success_url: `${process.env.CLIENT_URL || "http://localhost:3000"}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.CLIENT_URL || "http://localhost:3000"}/courses/${courseId}`,
   });
 
   // 4. Create pending enrollment
@@ -81,10 +93,11 @@ const createCheckoutSession = asyncHandler(async (req, res) => {
 // @route   POST /api/v1/payments/verify
 // @access  Private
 const verifyPayment = asyncHandler(async (req, res) => {
+  const stripeClient = getStripe();
   const { sessionId } = req.body;
 
   // 1. Retrieve session from Stripe
-  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  const session = await stripeClient.checkout.sessions.retrieve(sessionId);
 
   if (session.payment_status !== "paid") {
     throw new ApiError(400, "Payment not completed");
@@ -117,13 +130,14 @@ const verifyPayment = asyncHandler(async (req, res) => {
 // @route   POST /api/v1/payments/webhook
 // @access  Public (Stripe calls this)
 const stripeWebhook = asyncHandler(async (req, res) => {
+  const stripeClient = getStripe();
   const sig = req.headers["stripe-signature"];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    event = stripeClient.webhooks.constructEvent(req.body, sig, webhookSecret);
   } catch (err) {
     console.error("Webhook signature verification failed:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
