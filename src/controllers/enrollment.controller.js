@@ -89,6 +89,7 @@ const checkEnrollment = asyncHandler(async (req, res) => {
 // @route   POST /api/v1/enrollments/progress
 const updateProgress = asyncHandler(async (req, res) => {
   const { courseId, lectureId } = req.body;
+  console.log({ courseId, lectureId });
   const userId = req.user._id;
 
   // 1. Find the enrollment
