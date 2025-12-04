@@ -85,4 +85,27 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, req.user, "User fetched successfully"));
 });
 
-export { registerUser, loginUser, logoutUser, getCurrentUser };
+const updateUser = asyncHandler(async (req, res) => {
+  const { name } = req.body;
+
+  if (!name || name.trim().length < 2) {
+    throw new ApiError(400, "Name must be at least 2 characters");
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    { name: name.trim() },
+    { new: true }
+  ).select("-password");
+
+  if (!updatedUser) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updatedUser, "Profile updated successfully"));
+});
+
+export { registerUser, loginUser, logoutUser, getCurrentUser, updateUser };
+
