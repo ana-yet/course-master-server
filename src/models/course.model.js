@@ -1,51 +1,51 @@
 import mongoose, { Schema } from "mongoose";
 
-// ============ QUIZ SCHEMA ============
+// QUIZ SCHEMA
 // Each module can have a quiz with multiple questions
 const quizQuestionSchema = new Schema({
   question: { type: String, required: true },
-  options: [{ type: String, required: true }], // Array of 4 options
-  correctAnswer: { type: Number, required: true }, // Index of correct option (0-3)
+  options: [{ type: String, required: true }],
+  correctAnswer: { type: Number, required: true },
 });
 
 const quizSchema = new Schema({
   title: { type: String, default: "Module Quiz" },
   questions: [quizQuestionSchema],
-  passingScore: { type: Number, default: 70 }, // Percentage required to pass
+  passingScore: { type: Number, default: 70 },
 });
 
-// ============ MODULE SCHEMA ============
+// MODULE SCHEMA
 // Each module contains video content and an optional quiz
 const moduleSchema = new Schema({
   title: { type: String, required: true },
   description: { type: String },
-  videoUrl: { type: String, required: true }, // YouTube link
-  duration: { type: Number, default: 0 }, // Duration in minutes
-  isFree: { type: Boolean, default: false }, // For preview
-  quiz: quizSchema, // Optional quiz for this module
+  videoUrl: { type: String, required: true },
+  duration: { type: Number, default: 0 },
+  isFree: { type: Boolean, default: false },
+  quiz: quizSchema,
 });
 
-// ============ ASSIGNMENT SCHEMA ============
+// ASSIGNMENT SCHEMA
 // Each milestone ends with an assignment
 const assignmentSchema = new Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  instructions: { type: String }, // Detailed instructions for the assignment
-  deadline: { type: Number, default: 7 }, // Days after milestone start
+  instructions: { type: String },
+  deadline: { type: Number, default: 7 },
   maxScore: { type: Number, default: 100 },
 });
 
-// ============ MILESTONE SCHEMA ============
+// MILESTONE SCHEMA
 // A milestone contains multiple modules and ends with an assignment
 const milestoneSchema = new Schema({
   title: { type: String, required: true },
   description: { type: String },
-  order: { type: Number, required: true }, // For ordering milestones
-  modules: [moduleSchema], // Array of modules in this milestone
-  assignment: assignmentSchema, // Assignment at the end of milestone
+  order: { type: Number, required: true },
+  modules: [moduleSchema],
+  assignment: assignmentSchema,
 });
 
-// ============ MAIN COURSE SCHEMA ============
+// MAIN COURSE SCHEMA
 const courseSchema = new Schema(
   {
     title: {
@@ -82,7 +82,6 @@ const courseSchema = new Schema(
       enum: ["Beginner", "Intermediate", "Advanced"],
       default: "Beginner",
     },
-    // ======= NEW FIELDS =======
     batch: {
       type: String,
       required: true, // e.g., "Batch 1", "January 2024 Cohort"
@@ -91,9 +90,7 @@ const courseSchema = new Schema(
       type: Date,
       required: true,
     },
-    // Hierarchical Syllabus: Milestones → Modules → Quiz/Assignment
     milestones: [milestoneSchema],
-    // ===========================
     isPublished: {
       type: Boolean,
       default: false,

@@ -1,5 +1,27 @@
 import mongoose, { Schema } from "mongoose";
 
+// Track quiz attempts
+const quizAttemptSchema = new Schema({
+  moduleId: { type: String, required: true },
+  score: { type: Number, required: true },
+  passed: { type: Boolean, default: false },
+  attemptedAt: { type: Date, default: Date.now },
+});
+
+// Track assignment submissions
+const assignmentSubmissionSchema = new Schema({
+  milestoneId: { type: String, required: true },
+  submissionUrl: { type: String, required: true }, // GitHub link, file URL, etc.
+  submittedAt: { type: Date, default: Date.now },
+  score: { type: Number, default: null }, // Instructor grades it later
+  feedback: { type: String },
+  status: {
+    type: String,
+    enum: ["pending", "reviewed", "approved", "rejected"],
+    default: "pending",
+  },
+});
+
 const enrollmentSchema = new Schema(
   {
     student: {
@@ -12,14 +34,23 @@ const enrollmentSchema = new Schema(
       ref: "Course",
       required: true,
     },
-    // store the ID of the lectures that are finished
-    completedLessons: [
-      {
-        type: String, // Storing the _id of the sub-document
-      },
-    ],
+    // Payment info
+    paymentId: { type: String }, // Stripe payment intent ID
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "completed", "refunded"],
+      default: "pending",
+    },
+    amountPaid: { type: Number, default: 0 },
+    // Progress tracking - store completed module IDs
+    completedModules: [{ type: String }],
+    // Quiz tracking
+    quizAttempts: [quizAttemptSchema],
+    // Assignment tracking
+    assignmentSubmissions: [assignmentSubmissionSchema],
+    // Overall progress
     progress: {
-      type: Number, // Percentage (0-100)
+      type: Number,
       default: 0,
     },
     status: {
