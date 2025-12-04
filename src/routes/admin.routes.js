@@ -5,9 +5,9 @@ import {
 } from "../controllers/admin.controller.js";
 import { verifyJWT, verifyAdmin } from "../middlewares/auth.middleware.js";
 
+const router = Router();
+
 router.get("/stats", verifyJWT, verifyAdmin, getAdminStats);
 router.get("/submissions", verifyJWT, verifyAdmin, getAllSubmissions);
-
-const router = Router();
 
 export default router;
