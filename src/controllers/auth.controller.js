@@ -2,7 +2,6 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
-import { registerSchema, loginSchema } from "../validations/auth.validation.js";
 
 // Cookie options
 const options = {
@@ -12,21 +11,16 @@ const options = {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-  // 1. Validate Input
-  const validation = registerSchema.safeParse(req.body);
-  if (!validation.success) {
-    throw new ApiError(400, validation.error.errors[0].message);
-  }
+  // Input is already validated by middleware
+  const { name, email, password, role } = req.body;
 
-  const { name, email, password, role } = validation.data;
-
-  // 2. Check if user exists
+  // 1. Check if user exists
   const existedUser = await User.findOne({ email });
   if (existedUser) {
     throw new ApiError(409, "User with email already exists");
   }
 
-  // 3. Create User
+  // 2. Create User
   const user = await User.create({
     name,
     email,
@@ -46,13 +40,8 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  // 1. Validate Input
-  const validation = loginSchema.safeParse(req.body);
-  if (!validation.success) {
-    throw new ApiError(400, validation.error.errors[0].message);
-  }
-
-  const { email, password } = validation.data;
+  // Input is already validated by middleware
+  const { email, password } = req.body;
 
   // 2. Find User
   const user = await User.findOne({ email });

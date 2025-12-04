@@ -165,3 +165,20 @@ export const reviewAssignment = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, submission, `Assignment ${status}`));
 });
+
+// @desc Get Students Enrolled in a Course
+// @route GET /api/v1/admin/courses/:courseId/enrollments
+export const getCourseEnrollments = asyncHandler(async (req, res) => {
+  const { courseId } = req.params;
+
+  const enrollments = await Enrollment.find({
+    course: courseId,
+    paymentStatus: "completed",
+  })
+    .populate("student", "name email avatar")
+    .sort("-createdAt");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, enrollments, "Enrollments fetched"));
+});
