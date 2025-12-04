@@ -94,7 +94,6 @@ const getCourseById = asyncHandler(async (req, res) => {
 // @route   POST /api/v1/courses
 // @access  Private (Admin)
 const createCourse = asyncHandler(async (req, res) => {
-  // Assume basic validation is done by Zod Middleware or here manually
   const {
     title,
     description,
@@ -103,11 +102,12 @@ const createCourse = asyncHandler(async (req, res) => {
     level,
     tags,
     thumbnail,
-    syllabus,
-    batches,
+    batch,
+    startDate,
+    milestones,
   } = req.body;
 
-  if (!title || !description || !price || !category) {
+  if (!title || !description || !price || !category || !batch || !startDate) {
     throw new ApiError(400, "All required fields must be provided");
   }
 
@@ -117,12 +117,13 @@ const createCourse = asyncHandler(async (req, res) => {
     price,
     category,
     level,
-    tags, // Expecting array
+    tags,
     thumbnail,
-    syllabus: syllabus || [], // Optional at creation
-    batches: batches || [],
-    instructor: req.user._id, // Set from Auth Middleware
-    isPublished: true, // Default to true for now, or false if draft mode needed
+    batch,
+    startDate,
+    milestones: milestones || [],
+    instructor: req.user._id,
+    isPublished: true,
   });
 
   return res
