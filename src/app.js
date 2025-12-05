@@ -10,7 +10,7 @@ const app = express();
 app.use(helmet()); // Secure HTTP
 app.use(
   cors({
-    origin: "https://ana-yet-course-master-client.vercel.app",
+    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
@@ -40,5 +40,9 @@ app.use("/api/v1/payments", paymentRouter);
 // Global Error Handler
 import { errorHandler } from "./middlewares/error.middleware.js";
 app.use(errorHandler);
+
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
 
 export { app };
