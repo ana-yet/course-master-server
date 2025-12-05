@@ -12,8 +12,8 @@ app.use(
   cors({
     origin:
       process.env.CORS_ORIGIN ||
-      "http://localhost:3000" ||
-      "https://ana-yet-course-master-client.vercel.app",
+      "https://ana-yet-course-master-client.vercel.app" ||
+      "http://localhost:3000",
     credentials: true,
   })
 );
